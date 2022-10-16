@@ -16,3 +16,7 @@ class ApotekLoadedState extends ApotekState {
 }
 
 class ApotekErrorState extends ApotekState {}
+
+
+
+

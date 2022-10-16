@@ -31,6 +31,7 @@ class Data {
   String? nomorIzinApotek;
   String? telepon;
   String? gambar;
+  String? deskripsi;
   String? alamat;
   String? lat;
   String? long;
@@ -43,6 +44,7 @@ class Data {
       this.nomorIzinApotek,
       this.telepon,
       this.gambar,
+      this.deskripsi,
       this.alamat,
       this.lat,
       this.long,
@@ -55,6 +57,7 @@ class Data {
     nomorIzinApotek = json['nomor_izin_apotek'];
     telepon = json['telepon'];
     gambar = json['gambar'];
+    deskripsi = json['deskripsi'];
     alamat = json['alamat'];
     lat = json['lat'];
     long = json['long'];
@@ -69,6 +72,7 @@ class Data {
     data['nomor_izin_apotek'] = this.nomorIzinApotek;
     data['telepon'] = this.telepon;
     data['gambar'] = this.gambar;
+    data['deskripsi'] = this.deskripsi;
     data['alamat'] = this.alamat;
     data['lat'] = this.lat;
     data['long'] = this.long;

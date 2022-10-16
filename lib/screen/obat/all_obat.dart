@@ -1,122 +1,89 @@
-import 'package:apotek_ku/blocs/apotek/apotek_bloc.dart';
-import 'package:apotek_ku/screen/home/apotek/detail_page.dart';
+import 'package:apotek_ku/untilities/colors.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-import '../../../untilities/colors.dart';
+import '../../blocs/obat/obat_bloc.dart';
 
-class ApotekHomePage extends StatefulWidget {
-  const ApotekHomePage({Key? key}) : super(key: key);
+class AllObatPage extends StatefulWidget {
+  const AllObatPage({Key? key}) : super(key: key);
 
   @override
-  State<ApotekHomePage> createState() => _ApotekPageState();
+  State<AllObatPage> createState() => _AllObatPageState();
 }
 
-class _ApotekPageState extends State<ApotekHomePage> {
-  int page = 1;
-  final _keywordController = TextEditingController();
-  RefreshController _refreshController =
-      RefreshController(initialRefresh: false);
-  void _onRefresh() async {
-    // monitor network fetch
-    await Future.delayed(Duration(milliseconds: 1000));
-    // if failed,use refreshFailed()
-    _refreshController.refreshCompleted();
-    if (page > 1) {
-      setState(() {
-        page -= 1;
-      });
-      context.read<ApotekBloc>()..add(ApotekFetch(keyword: "", page: page));
-    }
-  }
-
-  void _onLoading() async {
-    // monitor network fetch
-    await Future.delayed(Duration(milliseconds: 1000));
-    // if failed,use loadFailed(),if no data return,use LoadNodata()
-
-    _refreshController.loadComplete();
-    setState(() {
-      page += 1;
-    });
-    context.read<ApotekBloc>()..add(ApotekFetch(keyword: "", page: page));
-    print(page);
-  }
-
-  
-
+class _AllObatPageState extends State<AllObatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // iconTheme: const IconThemeData(color: textTheme),
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-        //   onPressed: () => Navigator.of(context).pop(),
-        // ),
+        iconTheme: const IconThemeData(color: textTheme),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         elevation: 0,
         backgroundColor: Colors.white,
         centerTitle: true,
-        title: Text("Apotek Page",
+        title: Text("Obat Page",
             style: GoogleFonts.inter(
                 textStyle: const TextStyle(
                     color: textTheme,
                     fontWeight: FontWeight.w600,
                     fontSize: 17))),
       ),
-      body: Column(children: [
-        const SizedBox(
-          height: 15,
-        ),
-        BlocBuilder<ApotekBloc, ApotekState>(
-          builder: (context, state) {
-            if (state is ApotekLoadingState) {
-              return Expanded(
-                child: Center(
-                  child: Text(
-                    "Loading ....",
-                    style: GoogleFonts.montserrat(
-                      textStyle: const TextStyle(
-                          color: greenTheme,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 14),
+      body: Column(
+        children: [
+          const SizedBox(
+            height: 15,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 17, left: 17),
+            child: TextField(
+              decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.all(10),
+                  prefixIcon: Image.asset(
+                    "assets/Search.png",
+                    color: const Color.fromARGB(255, 187, 187, 187),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  filled: true,
+                  hintStyle: const TextStyle(
+                      color: filltextTheme,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w300),
+                  hintText: "Search apotek, drugs, articles...",
+                  fillColor: const Color.fromARGB(255, 244, 244, 244),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                    borderSide: const BorderSide(
+                      width: 1,
+                      color: Color.fromARGB(255, 244, 244, 244),
                     ),
                   ),
-                ),
-              );
-            }
-            if (state is ApotekLoadedState) {
-              return Expanded(
-                child: SmartRefresher(
-                  enablePullDown: true,
-                  enablePullUp: true,
-                  header: WaterDropMaterialHeader(),
-                  controller: _refreshController,
-                  onRefresh: _onRefresh,
-                  onLoading: () {
-                    _onLoading();
-                  },
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                    borderSide: const BorderSide(
+                      width: 1,
+                      color: const Color.fromARGB(255, 244, 244, 244),
+                    ),
+                  )),
+            ),
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          BlocBuilder<ObatBloc, ObatState>(
+            builder: (context, state) {
+              if (state is ObatLoadedState) {
+                return Expanded(
                   child: ListView.builder(
                       itemCount: state.data.length,
                       itemBuilder: (BuildContext context, int index) {
                         return GestureDetector(
-                          onTap: () {
-                            Get.to(DetailApotekPage(
-                              id: state.data[index].id!,
-                              nama: state.data[index].namaApotek!,
-                              alamat: state.data[index].alamat!,
-                              no: state.data[index].telepon!,
-                              gambar: state.data[index].gambar!,
-                              lat: double.parse(state.data[index].lat!),
-                              long: double.parse(
-                                state.data[index].long!,
-                              ),
-                              keterangan: state.data[index].deskripsi!,
-                            ));
-                          },
+                          onTap: () {},
                           child: Container(
                             margin: const EdgeInsets.all(10),
                             height: 130,
@@ -141,8 +108,9 @@ class _ApotekPageState extends State<ApotekHomePage> {
                                     ),
                                     image: DecorationImage(
                                         fit: BoxFit.fill,
-                                        image: NetworkImage(
-                                            state.data[index].gambar!))),
+                                        image: AssetImage(
+                                          "assets/obatkotak.png",
+                                        ))),
                                 width: MediaQuery.of(context).size.width / 2.7,
                               ),
                               Container(
@@ -155,7 +123,7 @@ class _ApotekPageState extends State<ApotekHomePage> {
                                     Container(
                                       margin: const EdgeInsets.only(
                                           left: 18, right: 18),
-                                      child: Text(state.data[index].namaApotek!,
+                                      child: Text(state.data[index].namaObat!,
                                           maxLines: 1,
                                           style: GoogleFonts.inter(
                                             textStyle: const TextStyle(
@@ -167,7 +135,7 @@ class _ApotekPageState extends State<ApotekHomePage> {
                                     Container(
                                       margin: const EdgeInsets.only(
                                           left: 18, right: 18),
-                                      child: Text(state.data[index].alamat!,
+                                      child: Text("jenis : ${state.data[index].jenis!}",
                                           maxLines: 1,
                                           style: GoogleFonts.inter(
                                             textStyle: const TextStyle(
@@ -179,7 +147,7 @@ class _ApotekPageState extends State<ApotekHomePage> {
                                     Container(
                                       margin: const EdgeInsets.only(
                                           left: 18, right: 18, bottom: 17),
-                                      child: Text(state.data[index].deskripsi!,
+                                      child: Text(state.data[index].keterangan!,
                                           maxLines: 5,
                                           style: GoogleFonts.inter(
                                             textStyle: const TextStyle(
@@ -195,14 +163,14 @@ class _ApotekPageState extends State<ApotekHomePage> {
                           ),
                         );
                       }),
-                ),
-              );
-            } else {
-              return SizedBox();
-            }
-          },
-        )
-      ]),
+                );
+              } else {
+                return SizedBox();
+              }
+            },
+          )
+        ],
+      ),
     );
   }
 }

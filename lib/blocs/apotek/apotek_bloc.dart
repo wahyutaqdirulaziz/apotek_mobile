@@ -14,9 +14,16 @@ class ApotekBloc extends Bloc<ApotekEvent, ApotekState> {
       emit(ApotekLoadingState());
 
       try {
-        ApotekModel data = await _apotekService.getApotek();
-        print(data);
-        emit(ApotekLoadedState(data: data.data!));
+        if (event.keyword == "") {
+          ApotekModel data = await _apotekService.getApotek(page: event.page);
+          print(data);
+          emit(ApotekLoadedState(data: data.data!));
+        } else {
+          ApotekModel data =
+              await _apotekService.searchApotek(keyword: event.keyword);
+          print(data);
+          emit(ApotekLoadedState(data: data.data!));
+        }
       } catch (error) {
         emit(ApotekErrorState());
       }

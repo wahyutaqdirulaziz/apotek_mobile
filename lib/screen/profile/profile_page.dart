@@ -3,6 +3,8 @@ import 'package:apotek_ku/screen/onbording_page/onbording_page.dart';
 import 'package:apotek_ku/untilities/colors.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,6 +17,68 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  String? _currentAddress;
+  Position? _currentPosition;
+
+// permission
+
+  Future<bool> _handleLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location services are disabled. Please enable the services')));
+      return false;
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are denied')));
+        return false;
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location permissions are permanently denied, we cannot request permissions.')));
+      return false;
+    }
+    return true;
+  }
+// endpermisiion
+
+  Future<void> _getCurrentPosition() async {
+    final hasPermission = await _handleLocationPermission();
+
+    if (!hasPermission) return;
+    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+        .then((Position position) {
+      setState(() => _currentPosition = position);
+      _getAddressFromLatLng(_currentPosition!);
+    }).catchError((e) {
+      debugPrint(e);
+    });
+  }
+
+  Future<void> _getAddressFromLatLng(Position position) async {
+    await placemarkFromCoordinates(
+            _currentPosition!.latitude, _currentPosition!.longitude)
+        .then((List<Placemark> placemarks) {
+      Placemark place = placemarks[0];
+      setState(() {
+        // ${place.street},
+        _currentAddress =
+            '${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}';
+      });
+    }).catchError((e) {
+      debugPrint(e);
+    });
+  }
+
   logout() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.remove('token');
@@ -24,7 +88,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     // TODO: implement initState
-
+    _getCurrentPosition();
     super.initState();
   }
 
@@ -70,17 +134,19 @@ class _ProfilePageState extends State<ProfilePage> {
                                   style: GoogleFonts.inter(
                                     textStyle: const TextStyle(
                                         color: textTheme,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16),
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 17),
                                   )),
-                              Text("Lombok - Ntb",
-                                  maxLines: 1,
-                                  style: GoogleFonts.inter(
-                                    textStyle: const TextStyle(
-                                        color: subtextTheme,
-                                        fontWeight: FontWeight.w200,
-                                        fontSize: 14),
-                                  )),
+                              Text(
+                                state.data.email!,
+                                textAlign: TextAlign.start,
+                                style: GoogleFonts.inter(
+                                  textStyle: const TextStyle(
+                                      color: textTheme,
+                                      fontWeight: FontWeight.w200,
+                                      fontSize: 12),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -132,31 +198,43 @@ class _ProfilePageState extends State<ProfilePage> {
                             const SizedBox(
                               height: 10,
                             ),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width / 4,
-                              height: MediaQuery.of(context).size.height / 24,
-                              child: ElevatedButton(
-                                  // ignore: sort_child_properties_last
-                                  child: Text("Cari Dokter",
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.fmd_good,
+                                  color: greenTheme,
+                                  size: 15,
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Lokasi Anda",
+                                      textAlign: TextAlign.start,
                                       style: GoogleFonts.inter(
-                                          textStyle: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 12))),
-                                  style: ButtonStyle(
-                                      foregroundColor: MaterialStateProperty.all<Color>(
-                                          Colors.white),
-                                      backgroundColor:
-                                          MaterialStateProperty.all<Color>(
-                                              greenTheme),
-                                      shape: MaterialStateProperty.all<
-                                              RoundedRectangleBorder>(
-                                          RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              side: const BorderSide(
-                                                  color: greenTheme)))),
-                                  onPressed: () {}),
+                                        textStyle: const TextStyle(
+                                            color: textTheme,
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 8),
+                                      ),
+                                    ),
+                                    Text(
+                                      "${_currentAddress}",
+                                      textAlign: TextAlign.start,
+                                      style: GoogleFonts.inter(
+                                        textStyle: const TextStyle(
+                                            color: textTheme,
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 8),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -280,11 +358,11 @@ class _ProfilePageState extends State<ProfilePage> {
           return Scaffold(
             body: Center(
               child: Text(
-                "Apotek Kuy",
+                "Loading ....",
                 style: GoogleFonts.montserrat(
                   textStyle: const TextStyle(
                       color: greenTheme,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w400,
                       fontSize: 14),
                 ),
               ),

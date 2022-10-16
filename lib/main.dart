@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => ApotekBloc()..add(ApotekFetch()),
+          create: (context) => ApotekBloc()..add(ApotekFetch(keyword: "",page: 1)),
         ),
         BlocProvider(
           create: (context) => UserBloc(),

@@ -1,25 +1,35 @@
 import 'dart:typed_data';
-
+import 'package:apotek_ku/blocs/detailapotek/detailapotek_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_launch/flutter_launch.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../untilities/colors.dart';
 
 class DetailApotekPage extends StatefulWidget {
+  int id;
   String nama;
   String alamat;
   String no;
   String gambar;
+  String? no_izin;
+  double lat;
+  double long;
+  String keterangan;
   DetailApotekPage(
       {Key? key,
+      required this.id,
       required this.nama,
       required this.alamat,
       required this.no,
-      required this.gambar})
+      required this.gambar,
+      this.no_izin,
+      required this.lat,
+      required this.long,
+      required this.keterangan})
       : super(key: key);
 
   @override
@@ -29,43 +39,75 @@ class DetailApotekPage extends StatefulWidget {
 class _DetailApotekPageState extends State<DetailApotekPage> {
   bool show = false;
   Set<Marker> markers = Set();
-
+  final Uri _url = Uri.parse('https://api.whatsapp.com/send?+6287763305916');
   @override
   void initState() {
     // TODO: implement initState
 
-    super.initState();
     addMarkers();
+
+    super.initState();
+  }
+
+  Future<void> _launchUrl() async {
+    if (!await launchUrl(_url)) {
+      throw 'Could not launch $_url';
+    }
   }
 
   final Completer<GoogleMapController> _controller = Completer();
-  static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(-5.1245699939923, 119.50486074342),
-    zoom: 14.4746,
-  );
-
-  void whatsAppOpen() async {
-    await FlutterLaunch.launchWhatsapp(
-        phone: "${widget.no}", message: "Hello ${widget.nama}");
-  }
 
   addMarkers() async {
     BitmapDescriptor markerbitmap = await BitmapDescriptor.fromAssetImage(
       ImageConfiguration(),
       "assets/orang.png",
     );
-
+    CameraPosition _kGooglePlex = CameraPosition(
+      target: LatLng(widget.lat, widget.long),
+      zoom: 14.4746,
+    );
     markers.add(Marker(
       //add start location marker
       markerId: MarkerId(_kGooglePlex.target.toString()),
       position: _kGooglePlex.target, //position of marker
       infoWindow: InfoWindow(
+        onTap: () {
+          launchGoogleMaps(widget.lat, widget.long);
+        },
         //popup info
-        title: 'Starting Point ',
-        snippet: 'Start Marker',
+        title: '${widget.nama}',
       ),
       icon: markerbitmap, //Icon for Marker
     ));
+  }
+
+  void launchWaze(double lat, double lng) async {
+    var url = Uri.parse('waze://?ll=${lat.toString()},${lng.toString()}');
+    var fallbackUrl = Uri.parse(
+        'https://waze.com/ul?ll=${lat.toString()},${lng.toString()}&navigate=yes');
+    try {
+      bool launched = await launchUrl(url);
+      if (!launched) {
+        await launchUrl(fallbackUrl);
+      }
+    } catch (e) {
+      await launchUrl(fallbackUrl);
+    }
+  }
+
+  void launchGoogleMaps(double lat, double lng) async {
+    var url =
+        Uri.parse('google.navigation:q=${lat.toString()},${lng.toString()}');
+    var fallbackUrl = Uri.parse(
+        'https://www.google.com/maps/search/?api=1&query=${lat.toString()},${lng.toString()}');
+    try {
+      bool launched = await launchUrl(url);
+      if (!launched) {
+        await launchUrl(fallbackUrl);
+      }
+    } catch (e) {
+      await launchUrl(fallbackUrl);
+    }
   }
 
   @override
@@ -95,7 +137,10 @@ class _DetailApotekPageState extends State<DetailApotekPage> {
             child: GoogleMap(
               mapType: MapType.normal,
               markers: markers,
-              initialCameraPosition: _kGooglePlex,
+              initialCameraPosition: CameraPosition(
+                target: LatLng(widget.lat, widget.long),
+                zoom: 14.4746,
+              ),
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
               },
@@ -105,24 +150,37 @@ class _DetailApotekPageState extends State<DetailApotekPage> {
             height: 20,
           ),
           show
-              ? Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 70),
-                    height: 250,
-                    width: double.infinity,
-                    child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: 5,
-                        itemBuilder: (BuildContext context, int index) {
-                          return cardObat(context);
-                        }),
+              ? BlocProvider(
+                  create: (context) =>
+                      DetailapotekBloc()..add(ApotekDetailFetch(id: widget.id)),
+                  child: BlocBuilder<DetailapotekBloc, DetailapotekState>(
+                    builder: (context, state) {
+                      if (state is ApotekDetailLoadedState) {
+                        return Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 70),
+                            height: 250,
+                            width: double.infinity,
+                            child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: state.data.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return cardObat(context,
+                                      state.data[index]!.namaObat, widget.nama);
+                                }),
+                          ),
+                        );
+                      } else {
+                        return SizedBox();
+                      }
+                    },
                   ),
                 )
               : SizedBox(),
           Container(
             margin: const EdgeInsets.all(10),
-            height: 130,
+            height: 135,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(10.0),
@@ -175,10 +233,21 @@ class _DetailApotekPageState extends State<DetailApotekPage> {
                           )),
                     ),
                     Container(
+                      margin: const EdgeInsets.only(left: 18, right: 18),
+                      child: Text(widget.no_izin ?? "NO123455",
+                          maxLines: 1,
+                          style: GoogleFonts.inter(
+                            textStyle: const TextStyle(
+                                color: greenTheme,
+                                fontWeight: FontWeight.w400,
+                                fontSize: 10),
+                          )),
+                    ),
+                    Container(
                       margin: const EdgeInsets.only(
                           left: 18, right: 18, bottom: 17),
-                      child: Text("${widget.no}",
-                          maxLines: 5,
+                      child: Text("${widget.no} ${widget.keterangan}",
+                          maxLines: 4,
                           style: GoogleFonts.inter(
                             textStyle: const TextStyle(
                                 color: subtextTheme,
@@ -227,7 +296,7 @@ class _DetailApotekPageState extends State<DetailApotekPage> {
                                     borderRadius: BorderRadius.circular(8.0),
                                     side: BorderSide(color: greenTheme)))),
                         onPressed: () {
-                          whatsAppOpen();
+                          _launchUrl();
                         }),
                   ),
                 ),
@@ -241,12 +310,12 @@ class _DetailApotekPageState extends State<DetailApotekPage> {
                     height: MediaQuery.of(context).size.height / 17,
                     child: ElevatedButton(
                         // ignore: sort_child_properties_last
-                        child: Text("Tampilkan Obat",
+                        child: Text("Tampilkan Lokasi dan Obat",
                             style: GoogleFonts.inter(
                                 textStyle: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w300,
-                                    fontSize: 14))),
+                                    fontSize: 12))),
                         style: ButtonStyle(
                             foregroundColor:
                                 MaterialStateProperty.all<Color>(Colors.white),
@@ -277,7 +346,7 @@ class _DetailApotekPageState extends State<DetailApotekPage> {
   }
 }
 
-Container cardObat(BuildContext context) {
+Container cardObat(BuildContext context, nama, nama_apotek) {
   return Container(
     margin: EdgeInsets.all(10),
     height: 25,
@@ -314,7 +383,7 @@ Container cardObat(BuildContext context) {
         ),
         Container(
           margin: const EdgeInsets.only(left: 18, right: 18),
-          child: Text("Obat Paracetamol",
+          child: Text("${nama}",
               maxLines: 1,
               style: GoogleFonts.inter(
                 textStyle: const TextStyle(
@@ -325,7 +394,7 @@ Container cardObat(BuildContext context) {
         ),
         Container(
           margin: const EdgeInsets.only(left: 18, right: 18, bottom: 17),
-          child: Text("Apotek Kimia Farma",
+          child: Text("Apotek ${nama_apotek}",
               maxLines: 1,
               style: GoogleFonts.inter(
                 textStyle: const TextStyle(
