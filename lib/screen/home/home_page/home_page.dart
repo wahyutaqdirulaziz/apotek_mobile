@@ -93,7 +93,7 @@ class _HomePageState extends State<HomePage> {
     await Future.delayed(Duration(milliseconds: 1000));
     // if failed,use refreshFailed()
     _refreshController.refreshCompleted();
-    context.read<ApotekBloc>()..add(ApotekFetch(keyword: "",page: page));
+    context.read<ApotekBloc>()..add(ApotekFetch(keyword: "", page: page));
     context.read<ObatBloc>()..add(ObatFetch());
   }
 
@@ -448,8 +448,11 @@ class _HomePageState extends State<HomePage> {
                         scrollDirection: Axis.horizontal,
                         itemCount: state.data.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return cardObat(context, state.data[index].namaObat!,
-                              state.data[index].jenis);
+                          return cardObat(
+                              context,
+                              state.data[index].namaObat!,
+                              state.data[index].jenis,
+                              state.data[index].harga!);
                         }),
                   );
                 } else {
@@ -492,7 +495,7 @@ class _HomePageState extends State<HomePage> {
                           height: 30,
                         ),
                         Text(
-                          "Cari Dokter Terdekat ?",
+                          "Cari Apotek Terdekat ?",
                           textAlign: TextAlign.start,
                           style: GoogleFonts.inter(
                             textStyle: const TextStyle(
@@ -564,7 +567,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Container cardObat(BuildContext context, nama, jenis) {
+  Container cardObat(BuildContext context, nama, jenis, harga) {
     return Container(
       margin: EdgeInsets.all(10),
       height: 25,
@@ -601,18 +604,18 @@ class _HomePageState extends State<HomePage> {
           ),
           Container(
             margin: const EdgeInsets.only(left: 18, right: 18),
-            child: Text("Obat ${nama}",
+            child: Text(harga,
                 maxLines: 1,
                 style: GoogleFonts.inter(
                   textStyle: const TextStyle(
                       color: textTheme,
                       fontWeight: FontWeight.w600,
-                      fontSize: 16),
+                      fontSize: 14),
                 )),
           ),
           Container(
             margin: const EdgeInsets.only(left: 18, right: 18, bottom: 17),
-            child: Text("Apotek Kimia Farma",
+            child: Text(nama,
                 maxLines: 1,
                 style: GoogleFonts.inter(
                   textStyle: const TextStyle(
@@ -645,6 +648,9 @@ class _HomePageState extends State<HomePage> {
                 Center(
                   child: Image.network(
                     gambar,
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height / 8,
+                    fit: BoxFit.fill,
                   ),
                 ),
                 Padding(
@@ -683,7 +689,7 @@ class _HomePageState extends State<HomePage> {
                   textStyle: const TextStyle(
                       color: textTheme,
                       fontWeight: FontWeight.w600,
-                      fontSize: 17),
+                      fontSize: 14),
                 )),
           ),
           Container(

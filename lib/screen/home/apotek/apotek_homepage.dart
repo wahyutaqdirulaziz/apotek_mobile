@@ -46,8 +46,6 @@ class _ApotekPageState extends State<ApotekHomePage> {
     print(page);
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,23 +162,41 @@ class _ApotekPageState extends State<ApotekHomePage> {
                                                 fontSize: 16),
                                           )),
                                     ),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
                                     Container(
                                       margin: const EdgeInsets.only(
                                           left: 18, right: 18),
-                                      child: Text(state.data[index].alamat!,
-                                          maxLines: 1,
-                                          style: GoogleFonts.inter(
-                                            textStyle: const TextStyle(
-                                                color: greenTheme,
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 10),
-                                          )),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.fmd_good,
+                                            color: greenTheme,
+                                            size: 15,
+                                          ),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(state.data[index].alamat!,
+                                              maxLines: 1,
+                                              style: GoogleFonts.inter(
+                                                textStyle: const TextStyle(
+                                                    color: greenTheme,
+                                                    fontWeight: FontWeight.w400,
+                                                    fontSize: 10),
+                                              )),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 5,
                                     ),
                                     Container(
                                       margin: const EdgeInsets.only(
                                           left: 18, right: 18, bottom: 17),
                                       child: Text(state.data[index].deskripsi!,
-                                          maxLines: 5,
+                                          maxLines: 4,
                                           style: GoogleFonts.inter(
                                             textStyle: const TextStyle(
                                                 color: subtextTheme,

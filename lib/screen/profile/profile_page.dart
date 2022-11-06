@@ -176,7 +176,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               height: 30,
                             ),
                             Text(
-                              "Cari Dokter Terdekat ?",
+                              "Cari Apotek Terdekat ?",
                               textAlign: TextAlign.start,
                               style: GoogleFonts.inter(
                                 textStyle: const TextStyle(
@@ -256,7 +256,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       SizedBox(
                         height: 5,
                       ),
-                      Text("Nomor Hanphone",
+                      Text("Nomor",
                           maxLines: 1,
                           style: GoogleFonts.inter(
                             textStyle: const TextStyle(
@@ -298,7 +298,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       SizedBox(
                         height: 5,
                       ),
-                      Text("Alamat Lengkap",
+                      Text("Alamat",
                           maxLines: 1,
                           style: GoogleFonts.inter(
                             textStyle: const TextStyle(
@@ -309,8 +309,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       SizedBox(
                         height: 5,
                       ),
-                      Text(
-                          "Jl. Prof. M Yamin No.39, Pancor, Kec. Selong, Kabupaten Lombok Timur, Nusa Tenggara Bar. 83611",
+                      Text("${_currentAddress}",
                           style: GoogleFonts.inter(
                             textStyle: const TextStyle(
                                 color: subtextTheme,

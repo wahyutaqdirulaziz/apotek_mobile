@@ -53,7 +53,8 @@ class _ApotekPageState extends State<ApotekPage> {
         iconTheme: const IconThemeData(color: textTheme),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).pop(context.read<ApotekBloc>()
+            ..add(ApotekFetch(keyword: "", page: 1))),
         ),
         elevation: 0,
         backgroundColor: Colors.white,
@@ -104,7 +105,7 @@ class _ApotekPageState extends State<ApotekPage> {
                   ),
                 )),
             onSubmitted: (value) {
-              // with extensions
+              // with extensionsR
               context.read<ApotekBloc>()
                 ..add(ApotekFetch(keyword: value, page: 1));
             },
@@ -132,124 +133,142 @@ class _ApotekPageState extends State<ApotekPage> {
                     onLoading: () {
                       _onLoading();
                     },
-                    child: ListView.builder(
-                        itemCount: state.data.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return GestureDetector(
-                            onTap: () {
-                              Get.to(DetailApotekPage(
-                                id: state.data[index].id!,
-                                nama: state.data[index].namaApotek!,
-                                alamat: state.data[index].alamat!,
-                                no: state.data[index].telepon!,
-                                gambar: state.data[index].gambar!,
-                                lat: double.parse(state.data[index].lat!),
-                                long: double.parse(state.data[index].long!),
-                                keterangan: state.data[index].deskripsi!,
-                              ));
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.all(10),
-                              height: 130,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10.0),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-
-                                    offset: const Offset(
-                                        1, 1), // changes position of shadow
-                                  ),
-                                ],
+                    child: (state.data.isEmpty)
+                        ? Center(
+                            child: Text(
+                              "Daftar Apotek Tidak Ada",
+                              style: GoogleFonts.montserrat(
+                                textStyle: const TextStyle(
+                                    color: greenTheme,
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14),
                               ),
-                              child: Row(children: [
-                                Container(
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: state.data.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  Get.to(DetailApotekPage(
+                                    id: state.data[index].id!,
+                                    nama: state.data[index].namaApotek!,
+                                    alamat: state.data[index].alamat!,
+                                    no: state.data[index].telepon!,
+                                    gambar: state.data[index].gambar!,
+                                    lat: double.parse(state.data[index].lat!),
+                                    long: double.parse(state.data[index].long!),
+                                    keterangan: state.data[index].deskripsi!,
+                                  ));
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.all(10),
+                                  height: 130,
                                   decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(10),
-                                        bottomLeft: Radius.circular(10),
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+
+                                        offset: const Offset(
+                                            1, 1), // changes position of shadow
                                       ),
-                                      image: DecorationImage(
-                                          fit: BoxFit.fill,
-                                          image: NetworkImage(
-                                              state.data[index].gambar!))),
-                                  width:
-                                      MediaQuery.of(context).size.width / 2.7,
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.only(
-                                      left: 8, top: 10, bottom: 10),
-                                  width:
-                                      MediaQuery.of(context).size.width / 1.9,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        margin: const EdgeInsets.only(
-                                            left: 18, right: 18),
-                                        child: Text(
-                                            state.data[index].namaApotek!,
-                                            maxLines: 1,
-                                            style: GoogleFonts.inter(
-                                              textStyle: const TextStyle(
-                                                  color: textTheme,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 16),
-                                            )),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Container(
-                                        margin: const EdgeInsets.only(
-                                            left: 18, right: 18),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.fmd_good,
-                                              color: greenTheme,
-                                              size: 15,
-                                            ),
-                                            SizedBox(
-                                              width: 5,
-                                            ),
-                                            Text(state.data[index].alamat!,
+                                    ],
+                                  ),
+                                  child: Row(children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(10),
+                                            bottomLeft: Radius.circular(10),
+                                          ),
+                                          image: DecorationImage(
+                                              fit: BoxFit.fill,
+                                              image: NetworkImage(
+                                                  state.data[index].gambar!))),
+                                      width: MediaQuery.of(context).size.width /
+                                          2.7,
+                                    ),
+                                    Container(
+                                      margin: const EdgeInsets.only(
+                                          left: 8, top: 10, bottom: 10),
+                                      width: MediaQuery.of(context).size.width /
+                                          1.9,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            margin: const EdgeInsets.only(
+                                                left: 18, right: 18),
+                                            child: Text(
+                                                state.data[index].namaApotek!,
                                                 maxLines: 1,
                                                 style: GoogleFonts.inter(
                                                   textStyle: const TextStyle(
-                                                      color: greenTheme,
+                                                      color: textTheme,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      fontSize: 16),
+                                                )),
+                                          ),
+                                          SizedBox(
+                                            height: 5,
+                                          ),
+                                          Container(
+                                            margin: const EdgeInsets.only(
+                                                left: 18, right: 18),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.fmd_good,
+                                                  color: greenTheme,
+                                                  size: 15,
+                                                ),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(state.data[index].alamat!,
+                                                    maxLines: 1,
+                                                    style: GoogleFonts.inter(
+                                                      textStyle:
+                                                          const TextStyle(
+                                                              color: greenTheme,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400,
+                                                              fontSize: 10),
+                                                    )),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 5,
+                                          ),
+                                          Container(
+                                            margin: const EdgeInsets.only(
+                                                left: 18,
+                                                right: 18,
+                                                bottom: 17),
+                                            child: Text(
+                                                state.data[index].deskripsi!,
+                                                maxLines: 4,
+                                                style: GoogleFonts.inter(
+                                                  textStyle: const TextStyle(
+                                                      color: subtextTheme,
                                                       fontWeight:
                                                           FontWeight.w400,
                                                       fontSize: 10),
                                                 )),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Container(
-                                        margin: const EdgeInsets.only(
-                                            left: 18, right: 18, bottom: 17),
-                                        child: Text(
-                                            state.data[index].deskripsi!,
-                                            maxLines: 4,
-                                            style: GoogleFonts.inter(
-                                              textStyle: const TextStyle(
-                                                  color: subtextTheme,
-                                                  fontWeight: FontWeight.w400,
-                                                  fontSize: 10),
-                                            )),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              ]),
-                            ),
-                          );
-                        }),
+                                    )
+                                  ]),
+                                ),
+                              );
+                            }),
                   ),
                 ),
               );

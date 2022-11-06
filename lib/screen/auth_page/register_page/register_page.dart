@@ -15,6 +15,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+    bool _passwordVisible = false;
   String textbotton = "Register";
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
@@ -208,8 +209,23 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           TextField(
                             controller: _passwordController,
-                            obscureText: true,
+                            obscureText: !_passwordVisible,
                             decoration: InputDecoration(
+                              suffixIcon: IconButton(
+                                  icon: Icon(
+                                    // Based on passwordVisible state choose the icon
+                                    _passwordVisible
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                    color: Theme.of(context).primaryColorDark,
+                                  ),
+                                  onPressed: () {
+                                    // Update the state i.e. toogle the state of passwordVisible variable
+                                    setState(() {
+                                      _passwordVisible = !_passwordVisible;
+                                    });
+                                  },
+                                ),
                                 contentPadding: EdgeInsets.all(8),
                                 prefixIcon: Image.asset(
                                   "assets/lock.png",

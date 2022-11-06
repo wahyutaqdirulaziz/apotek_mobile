@@ -29,6 +29,7 @@ class Data {
   int? idApotek;
   String? namaObat;
   String? jenis;
+  String? harga;
   String? keterangan;
   String? createdAt;
 
@@ -36,6 +37,7 @@ class Data {
       {this.id,
       this.idApotek,
       this.namaObat,
+      this.harga,
       this.jenis,
       this.keterangan,
       this.createdAt});
@@ -44,6 +46,7 @@ class Data {
     id = json['id'];
     idApotek = json['id_apotek'];
     namaObat = json['nama_obat'];
+    harga = json['harga'];
     jenis = json['jenis'];
     keterangan = json['keterangan'];
     createdAt = json['created_at'];
@@ -54,6 +57,7 @@ class Data {
     data['id'] = this.id;
     data['id_apotek'] = this.idApotek;
     data['nama_obat'] = this.namaObat;
+    data['harga'] = this.harga;
     data['jenis'] = this.jenis;
     data['keterangan'] = this.keterangan;
     data['created_at'] = this.createdAt;

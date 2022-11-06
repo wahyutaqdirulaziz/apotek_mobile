@@ -102,16 +102,17 @@ class _AllObatPageState extends State<AllObatPage> {
                             child: Row(children: [
                               Container(
                                 decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(10),
-                                      bottomLeft: Radius.circular(10),
-                                    ),
-                                    image: DecorationImage(
-                                        fit: BoxFit.fill,
-                                        image: AssetImage(
-                                          "assets/obatkotak.png",
-                                        ))),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(10),
+                                    bottomLeft: Radius.circular(10),
+                                  ),
+                                ),
                                 width: MediaQuery.of(context).size.width / 2.7,
+                                child: Center(
+                                  child: Image.asset(
+                                    "assets/obatkotak.png",
+                                  ),
+                                ),
                               ),
                               Container(
                                 margin: const EdgeInsets.only(
@@ -135,7 +136,8 @@ class _AllObatPageState extends State<AllObatPage> {
                                     Container(
                                       margin: const EdgeInsets.only(
                                           left: 18, right: 18),
-                                      child: Text("jenis : ${state.data[index].jenis!}",
+                                      child: Text(
+                                          "jenis : ${state.data[index].jenis!}",
                                           maxLines: 1,
                                           style: GoogleFonts.inter(
                                             textStyle: const TextStyle(

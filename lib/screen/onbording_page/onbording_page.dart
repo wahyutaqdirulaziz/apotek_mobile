@@ -43,7 +43,7 @@ class _OnbordingPageState extends State<OnbordingPage> {
             height: 17,
           ),
           Text(
-            "Let’s get started!",
+            "Cari Apotek Terdekat !",
             style: GoogleFonts.inter(
               textStyle: const TextStyle(
                   color: textTheme, fontWeight: FontWeight.w700, fontSize: 22),
